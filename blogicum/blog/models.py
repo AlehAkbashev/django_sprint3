@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from blogicum.constants import const
+
 User = get_user_model()
 
 
@@ -30,7 +32,7 @@ class Title(models.Model):
     title - Заголовок.
     """
     title = models.CharField(
-        max_length=256,
+        max_length=const.TITLE_LEN,
         verbose_name='Заголовок')
 
     class Meta:
@@ -48,7 +50,7 @@ class Location(CreatedAtIsPublished):
     name - Название места.
     """
     name = models.CharField(
-        max_length=256,
+        max_length=const.TITLE_LEN,
         verbose_name='Название места'
     )
 
@@ -102,22 +104,26 @@ class Post(CreatedAtIsPublished, Title):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Автор публикации'
+        verbose_name='Автор публикации',
+        related_name='author_post'
     )
     location = models.ForeignKey(
         Location,
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        verbose_name='Местоположение'
+        verbose_name='Местоположение',
+        related_name='location_post'
     )
     category = models.ForeignKey(
         Category,
         null=True,
         on_delete=models.SET_NULL,
-        verbose_name='Категория'
+        verbose_name='Категория',
+        related_name='category_post'
     )
 
     class Meta:
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
+        ordering = ['-pub_date']

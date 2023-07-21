@@ -1,10 +1,10 @@
 from datetime import datetime
 
 import pytz
-from django.db.models import Q
 from django.shortcuts import get_list_or_404, get_object_or_404, render
 
 from blog.models import Category, Post
+from blogicum.constants import const
 
 
 def index(request):
@@ -17,7 +17,7 @@ def index(request):
     ).filter(
         pub_date__lte=datetime.now(tz=pytz.timezone('Europe/Moscow')),
         is_published=True, category__is_published=True
-    ).order_by('-pub_date')[:5]
+    )[:const.PAGE_LIMIT]
     context = {
         'post_list': post_list
     }
@@ -32,10 +32,12 @@ def post_detail(request, id):
             'location',
             'category',
             'author'
-        ).filter(pk=id),
-        Q(pub_date__lte=datetime.now(tz=pytz.timezone('Europe/Moscow')))
-        & Q(is_published=True)
-        & Q(category__is_published=True)
+        ).filter(
+            pub_date__lte=datetime.now(tz=pytz.timezone('Europe/Moscow')),
+            is_published=True,
+            category__is_published=True,
+            pk=id
+        )
     )
     context = {
         'post': post
@@ -58,9 +60,9 @@ def category_posts(request, category_slug):
         ).filter(
             category_id=category.id,
             is_published=True,
-            pub_date__lte=datetime.now(tz=pytz.timezone('Europe/Moscow'))
-        ),
-        category__is_published=True
+            pub_date__lte=datetime.now(tz=pytz.timezone('Europe/Moscow')),
+            category__is_published=True
+        )
     )
     context = {
         'category': category,
